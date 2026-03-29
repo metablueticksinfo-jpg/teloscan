@@ -1,0 +1,1490 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Scraper - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/static/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+          <i class="fab fa-tiktok"></i>
+        </div>
+        <div class="sidebar-brand-text">
+          <span class="sidebar-title">Teloscan Panel</span>
+          <small class="sidebar-subtitle">Kontrol Merkezi</small>
+        </div>
+      </div>
+
+      <button id="sidebarMiniToggle" class="sidebar-mini-toggle" type="button" title="Sidebar daralt / genişlet">
+        <i class="fas fa-angle-left"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-section-title">Genel</div>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a href="#dashboard" class="nav-link active" data-section="dashboard">
+          <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#scraper" class="nav-link" data-section="scraper">
+          <span class="nav-icon"><i class="fas fa-search"></i></span>
+          <span class="nav-text">Veri Topla</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#results" class="nav-link" data-section="results">
+          <span class="nav-icon"><i class="fas fa-table"></i></span>
+          <span class="nav-text">Sonuç Listesi</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#region-analysis" class="nav-link" data-section="region-analysis">
+          <span class="nav-icon"><i class="fas fa-globe"></i></span>
+          <span class="nav-text">Bölge Analizi</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#charts" class="nav-link" data-section="charts">
+          <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+          <span class="nav-text">Grafikler</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#queue-management" class="nav-link" data-section="queue-management">
+          <span class="nav-icon"><i class="fas fa-stream"></i></span>
+          <span class="nav-text">Kuyruk Yönetimi</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-section-title">İşlemler</div>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a href="#logs" class="nav-link" data-section="logs">
+          <span class="nav-icon"><i class="fas fa-list"></i></span>
+          <span class="nav-text">Loglar</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#email" class="nav-link" data-section="email">
+          <span class="nav-icon"><i class="fas fa-envelope"></i></span>
+          <span class="nav-text">E-posta</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#export" class="nav-link" data-section="export">
+          <span class="nav-icon"><i class="fas fa-file-export"></i></span>
+          <span class="nav-text">Gelişmiş Export</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#settings" class="nav-link" data-section="settings">
+          <span class="nav-icon"><i class="fas fa-cog"></i></span>
+          <span class="nav-text">Ayarlar</span>
+        </a>
+      </li>
+    </ul>
+
+    {% if role == 'admin' %}
+    <div class="sidebar-section-title">Yönetim</div>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a href="#admin-overview" class="nav-link" data-section="admin-overview">
+          <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+          <span class="nav-text">Admin Özet</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#users" class="nav-link" data-section="users">
+          <span class="nav-icon"><i class="fas fa-users"></i></span>
+          <span class="nav-text">Kullanıcı Yönetimi</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#admin-packages" class="nav-link" data-section="admin-packages">
+          <span class="nav-icon"><i class="fas fa-box-open"></i></span>
+          <span class="nav-text">Paket / Limit</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="#ip-management" class="nav-link" data-section="ip-management">
+          <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+          <span class="nav-text">IP Yönetimi</span>
+        </a>
+      </li>
+    </ul>
+    {% endif %}
+  </nav>
+
+  <div id="main" class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button id="sidebarToggle" class="sidebar-toggle" type="button">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info">
+          <i class="fas fa-user-circle"></i>
+          <span>{{ username }}</span>
+          <span class="badge bg-primary">{{ role }}</span>
+        </div>
+        <button id="logoutBtn" class="btn btn-outline-danger btn-sm" type="button">
+          <i class="fas fa-sign-out-alt"></i> Çıkış
+        </button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard-section" class="content-section active">
+      <div class="container-fluid">
+        <h1 class="page-title">Dashboard</h1>
+
+        <div class="row">
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalEmails">0</h3>
+                <p>Toplam E-posta</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-success">
+                <i class="fas fa-store"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="shopEmails">0</h3>
+                <p>Shop E-postalar</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-info">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="normalEmails">0</h3>
+                <p>Normal E-postalar</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-warning">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="inProcess">0</h3>
+                <p>Kuyrukta</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-secondary">
+                <i class="fas fa-check"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="checkedUsers">0</h3>
+                <p>Kontrol Edilen</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-danger">
+                <i class="fas fa-stopwatch"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="elapsedTime">00:00:00</h3>
+                <p>Geçen Süre</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-dark">
+                <i class="fas fa-table"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="resultsCount">0</h3>
+                <p>Sonuç Sayısı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-warning">
+                <i class="fas fa-forward"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="skippedUsersStat">0</h3>
+                <p>Atlanan Kullanıcı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-danger">
+                <i class="fas fa-hourglass-half"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="rateLimitWaitsStat">0</h3>
+                <p>Rate Limit Bekleme</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="currentUserStat">-</h3>
+                <p>Şu An İşlenen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Sistem Durumu</h5>
+              </div>
+              <div class="card-body">
+                <div class="system-status">
+                  <div class="status-item">
+                    <span class="status-label">Scraper Durumu:</span>
+                    <span id="scraperStatus" class="badge bg-secondary">Durdu</span>
+                  </div>
+                  <div class="status-item">
+                    <span class="status-label">Son Güncelleme:</span>
+                    <span id="lastUpdate">-</span>
+                  </div>
+                  <div class="status-item">
+                    <span class="status-label">Aktif İşlenen UserID:</span>
+                    <span id="dashboardCurrentProcessingUserId">-</span>
+                  </div>
+                  <div class="status-item">
+                    <span class="status-label">Rate Limit Bekleme:</span>
+                    <span id="dashboardRateLimitWaits">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-users"></i> Son Eklenen Kullanıcılar</h5>
+              </div>
+              <div class="card-body">
+                <div id="recentUsers" class="recent-users">
+                  <div class="text-muted text-center">Henüz kullanıcı eklenmedi...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% if role == 'admin' %}
+        <div class="row mt-2">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-user-shield"></i> Admin Hızlı Özet</h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Toplam Kullanıcı</span>
+                      <span class="info-value" id="adminTotalUsers">0</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Aktif Kullanıcı</span>
+                      <span class="info-value" id="adminActiveUsers">0</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Global Mail</span>
+                      <span class="info-value" id="adminTotalEmailsFound">0</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Global Sonuç</span>
+                      <span class="info-value" id="adminTotalResults">0</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Global Process</span>
+                      <span class="info-value" id="adminTotalProcessedGlobal">0</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="info-item">
+                      <span class="info-label">Engelli IP</span>
+                      <span class="info-value" id="adminBlockedIpsCount">0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- SCRAPER -->
+    <section id="scraper-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Scraper Kontrolü</h1>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-play"></i> Scraper Başlat</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="tiktokUsername" class="form-label">TikTok Kullanıcı Adı</label>
+                  <div class="input-group">
+                    <span class="input-group-text">@</span>
+                    <input type="text" id="tiktokUsername" class="form-control" placeholder="kullanici_adi">
+                    <button id="getSecUidBtn" class="btn btn-outline-primary" type="button">
+                      <i class="fas fa-search"></i> UserID Al
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="userId" class="form-label">UserID</label>
+                  <input type="text" id="userId" class="form-control" placeholder="Otomatik doldurulacak" readonly>
+                </div>
+
+                <div class="scraper-controls">
+                  <button id="startScraperBtn" class="btn btn-success me-2" type="button">
+                    <i class="fas fa-play"></i> Başlat
+                  </button>
+                  <button id="stopScraperBtn" class="btn btn-danger" type="button" disabled>
+                    <i class="fas fa-stop"></i> Durdur
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-filter"></i> Filtreler</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <label for="minFollowers" class="form-label">Min Takipçi</label>
+                    <input type="number" id="minFollowers" class="form-control" value="0">
+                  </div>
+                  <div class="col-6 mb-3">
+                    <label for="maxFollowers" class="form-label">Max Takipçi</label>
+                    <input type="number" id="maxFollowers" class="form-control" value="9999999">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="verifiedFilter" class="form-label">Doğrulanmış Hesap</label>
+                  <select id="verifiedFilter" class="form-select">
+                    <option value="any">Hepsi</option>
+                    <option value="verified">Sadece Doğrulanmış</option>
+                    <option value="unverified">Doğrulanmamış</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="emailFilter" class="form-label">E-posta Filtresi</label>
+                  <select id="emailFilter" class="form-select">
+                    <option value="all">Tüm E-postalar</option>
+                    <option value="valid">Sadece Gmail</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="ttsellerFilter" class="form-label">Hesap Türü</label>
+                  <select id="ttsellerFilter" class="form-select">
+                    <option value="any">Hepsi</option>
+                    <option value="ttseller">Sadece Shop</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="regionFilter" class="form-label">Bölge / Ülke Kodu Filtresi</label>
+                  <input type="text" id="regionFilter" class="form-control" placeholder="US,TR,DE,GB">
+                  <div class="form-text">
+                    Birden fazla ülke kodunu virgülle gir. Boş bırakırsan tüm bölgeler taranır.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Sonuç Listesi</h1>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5><i class="fas fa-filter"></i> Sonuç Filtreleri</h5>
+          </div>
+          <div class="card-body">
+            <div class="results-preset-toolbar mb-4">
+              <div class="preset-toolbar-title">
+                <span class="preset-title-label">Hızlı Filtreler</span>
+                <small class="text-muted">Tek tıkla sık kullanılan filtreleri uygula</small>
+              </div>
+              <div class="preset-buttons">
+                <button id="presetRegionUSBtn" class="btn btn-sm btn-outline-primary result-preset-btn" type="button">
+                  <i class="fas fa-location-dot"></i> US
+                </button>
+                <button id="presetRegionTRBtn" class="btn btn-sm btn-outline-primary result-preset-btn" type="button">
+                  <i class="fas fa-location-dot"></i> TR
+                </button>
+                <button id="presetVerifiedBtn" class="btn btn-sm btn-outline-success result-preset-btn" type="button">
+                  <i class="fas fa-check-circle"></i> Verified
+                </button>
+                <button id="presetShopBtn" class="btn btn-sm btn-outline-warning result-preset-btn" type="button">
+                  <i class="fas fa-store"></i> Shop
+                </button>
+                <button id="presetEmailBtn" class="btn btn-sm btn-outline-info result-preset-btn" type="button">
+                  <i class="fas fa-envelope"></i> Maili Olan
+                </button>
+                <button id="presetClearBtn" class="btn btn-sm btn-outline-secondary result-preset-btn" type="button">
+                  <i class="fas fa-rotate-left"></i> Temizle
+                </button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="resultsSearch" class="form-label">Arama</label>
+                <input type="text" id="resultsSearch" class="form-control" placeholder="username / mail / userId">
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="resultsRegionFilter" class="form-label">Bölge</label>
+                <input type="text" id="resultsRegionFilter" class="form-control" placeholder="US,TR">
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="resultsShopType" class="form-label">Hesap Türü</label>
+                <select id="resultsShopType" class="form-select">
+                  <option value="all">Hepsi</option>
+                  <option value="shop">Shop</option>
+                  <option value="normal">Normal</option>
+                </select>
+              </div>
+
+              <div class="col-md-2 mb-3">
+                <label for="resultsPerPage" class="form-label">Sayfa Boyutu</label>
+                <select id="resultsPerPage" class="form-select">
+                  <option value="25">25</option>
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="250">250</option>
+                </select>
+              </div>
+
+              <div class="col-md-2 mb-3 d-flex align-items-end">
+                <button id="refreshResultsBtn" class="btn btn-primary w-100" type="button">
+                  <i class="fas fa-sync"></i> Yenile
+                </button>
+              </div>
+            </div>
+
+            <div class="row align-items-center g-3">
+              <div class="col-md-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="resultsVerifiedOnly">
+                  <label class="form-check-label" for="resultsVerifiedOnly">Sadece Verified</label>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="resultsEmailOnly">
+                  <label class="form-check-label" for="resultsEmailOnly">Sadece Mailli</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="results-legend">
+                  <span class="results-legend-item">
+                    <span class="legend-dot legend-success"></span> Verified
+                  </span>
+                  <span class="results-legend-item">
+                    <span class="legend-dot legend-warning"></span> Shop
+                  </span>
+                  <span class="results-legend-item">
+                    <span class="legend-dot legend-info"></span> Mail Var
+                  </span>
+                  <span class="results-legend-item">
+                    <span class="legend-dot legend-muted"></span> Mail Yok
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="results-action-bar mt-4">
+              <div class="results-action-left">
+                <span class="results-action-title">
+                  <i class="fas fa-download"></i> Filtrelenmiş Sonuç İşlemleri
+                </span>
+                <small class="text-muted">Uyguladığın filtreye göre sonuç indir</small>
+              </div>
+              <div class="results-action-right">
+                <button id="downloadFilteredResultsTxtBtn" class="btn btn-outline-dark" type="button">
+                  <i class="fas fa-file-lines"></i> Filtreli Sonucu TXT İndir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card results-card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5><i class="fas fa-table"></i> Sonuçlar</h5>
+            <span id="resultsPaginationInfo" class="badge bg-info">Sayfa 1 / 1 • Toplam 0</span>
+          </div>
+          <div class="card-body">
+            <div class="results-table-outer">
+              <div class="table-responsive results-table-wrapper">
+                <table class="table table-dark table-striped table-hover results-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Kullanıcı</th>
+                      <th>E-posta</th>
+                      <th>Takipçi</th>
+                      <th>Bölge</th>
+                      <th>Verified</th>
+                      <th>Shop</th>
+                      <th>User ID</th>
+                      <th>SecUID</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resultsTableBody">
+                    <tr>
+                      <td colspan="10" class="text-center text-muted">Sonuç bulunamadı</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+              <button id="resultsPrevBtn" class="btn btn-outline-secondary" type="button">
+                <i class="fas fa-chevron-left"></i> Önceki
+              </button>
+              <button id="resultsNextBtn" class="btn btn-outline-secondary" type="button">
+                Sonraki <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGION ANALYSIS -->
+    <section id="region-analysis-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Bölge Analizi</h1>
+
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-globe"></i> Bölge Dağılım Tablosu</h5>
+                <button id="refreshRegionAnalysisBtn" class="btn btn-outline-primary btn-sm" type="button">
+                  <i class="fas fa-sync"></i> Yenile
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-dark table-striped">
+                    <thead>
+                      <tr>
+                        <th>Bölge</th>
+                        <th>Kullanıcı</th>
+                        <th>Mail</th>
+                        <th>Mail Oranı</th>
+                      </tr>
+                    </thead>
+                    <tbody id="regionAnalysisTableBody">
+                      <tr>
+                        <td colspan="4" class="text-center text-muted">Veri bulunamadı</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-trophy"></i> En Verimli Bölgeler</h5>
+              </div>
+              <div class="card-body">
+                <div id="topRegionsList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section id="charts-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Grafikler</h1>
+
+        <div class="d-flex justify-content-end mb-3">
+          <button id="refreshChartsBtn" class="btn btn-outline-primary" type="button">
+            <i class="fas fa-sync"></i> Grafik Verilerini Yenile
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-globe"></i> Bölge Dağılımı</h5>
+              </div>
+              <div class="card-body">
+                <div id="regionChartList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-check-circle"></i> Verified / Unverified</h5>
+              </div>
+              <div class="card-body">
+                <div id="verifiedChartList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-store"></i> Shop / Normal</h5>
+              </div>
+              <div class="card-body">
+                <div id="shopChartList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-envelope"></i> Mail Var / Yok</h5>
+              </div>
+              <div class="card-body">
+                <div id="emailChartList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-clock"></i> Zamana Göre Mail Bulunma Sayısı</h5>
+              </div>
+              <div class="card-body">
+                <div id="emailTimelineList">
+                  <div class="text-muted text-center">Veri bulunamadı</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUEUE -->
+    <section id="queue-management-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Kuyruk Yönetimi</h1>
+
+        <div class="d-flex justify-content-end mb-3">
+          <button id="refreshQueueBtn" class="btn btn-outline-primary" type="button">
+            <i class="fas fa-sync"></i> Kuyruğu Yenile
+          </button>
+        </div>
+
+        <div class="row">
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary">
+                <i class="fas fa-layer-group"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="queueSize">0</h3>
+                <p>Kuyruk Sayısı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-info">
+                <i class="fas fa-play-circle"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="queueCurrentProcessingUserId">-</h3>
+                <p>İşlenen UserID</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-warning">
+                <i class="fas fa-forward"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="skippedCount">0</h3>
+                <p>Atlanan</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-danger">
+                <i class="fas fa-hourglass-half"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="queueRateLimitWaits">0</h3>
+                <p>Rate Limit</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h5><i class="fas fa-list-ol"></i> Sıradaki 10 Kullanıcı</h5>
+          </div>
+          <div class="card-body">
+            <div id="nextUsersList">
+              <div class="text-muted text-center">Kuyruk boş</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGS -->
+    <section id="logs-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Loglar</h1>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-list"></i> Canlı Log Akışı</h5>
+            <div>
+              <span class="badge bg-info me-2">Başlangıç: <span id="startTime">-</span></span>
+              <button id="clearLogsBtn" class="btn btn-warning btn-sm me-2" type="button">
+                <i class="fas fa-trash"></i> Temizle
+              </button>
+              <button id="downloadLogsBtn" class="btn btn-info btn-sm" type="button">
+                <i class="fas fa-download"></i> İndir
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="logsContainer" class="logs-container">
+              <div class="text-muted text-center">Log mesajları burada görünecek...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMAIL -->
+    <section id="email-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">E-posta Yönetimi</h1>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-server"></i> SMTP Ayarları</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="smtpHost" class="form-label">SMTP Host</label>
+                  <input type="text" id="smtpHost" class="form-control" placeholder="smtp.gmail.com">
+                </div>
+
+                <div class="mb-3">
+                  <label for="smtpPort" class="form-label">Port</label>
+                  <input type="number" id="smtpPort" class="form-control" value="587">
+                </div>
+
+                <div class="mb-3">
+                  <label for="smtpUser" class="form-label">E-posta</label>
+                  <input type="email" id="smtpUser" class="form-control" placeholder="ornek@gmail.com">
+                </div>
+
+                <div class="mb-3">
+                  <label for="smtpPass" class="form-label">Şifre</label>
+                  <input type="password" id="smtpPass" class="form-control">
+                </div>
+
+                <button id="testSmtpBtn" class="btn btn-outline-primary" type="button">
+                  <i class="fas fa-paper-plane"></i> Test Gönder
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-envelope"></i> E-posta Gönder</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="emailSubject" class="form-label">Konu</label>
+                  <input type="text" id="emailSubject" class="form-control" placeholder="E-posta konusu">
+                </div>
+
+                <div class="mb-3">
+                  <label for="emailContent" class="form-label">İçerik (HTML)</label>
+                  <textarea id="emailContent" class="form-control" rows="5" placeholder="Merhaba @!username, ..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="emailDelay" class="form-label">Gecikme (ms)</label>
+                  <input type="number" id="emailDelay" class="form-control" value="1000">
+                </div>
+
+                <button id="sendEmailsBtn" class="btn btn-success" type="button">
+                  <i class="fas fa-paper-plane"></i> Toplu Gönder
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-list"></i> E-posta Gönderim Logları</h5>
+              </div>
+              <div class="card-body">
+                <div id="mailLogsContainer" class="logs-container">
+                  <div class="text-muted text-center">E-posta logları burada görünecek...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPORT -->
+    <section id="export-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Gelişmiş Export</h1>
+
+        <div class="row">
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-filter"></i> Export Filtreleri</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="exportRegionFilter" class="form-label">Bölge Filtresi</label>
+                  <input type="text" id="exportRegionFilter" class="form-control" placeholder="US,TR,DE">
+                </div>
+
+                <div class="mb-3">
+                  <label for="exportShopType" class="form-label">Hesap Türü</label>
+                  <select id="exportShopType" class="form-select">
+                    <option value="all">Hepsi</option>
+                    <option value="shop">Sadece Shop</option>
+                    <option value="normal">Sadece Normal</option>
+                  </select>
+                </div>
+
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="exportVerifiedOnly">
+                  <label class="form-check-label" for="exportVerifiedOnly">Sadece Verified</label>
+                </div>
+
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="exportEmailOnly">
+                  <label class="form-check-label" for="exportEmailOnly">Sadece Mailli Kayıtlar</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-file-export"></i> Export İşlemleri</h5>
+              </div>
+              <div class="card-body">
+                <p>Sonuç listesini filtreli şekilde dışa aktarabilirsin.</p>
+
+                <div class="d-grid gap-2">
+                  <button id="exportResultsXlsxBtn" class="btn btn-success" type="button">
+                    <i class="fas fa-file-excel"></i> Excel Export (.xlsx)
+                  </button>
+
+                  <button id="exportResultsCsvBtn" class="btn btn-warning" type="button">
+                    <i class="fas fa-file-csv"></i> CSV Export (.csv)
+                  </button>
+
+                  <button id="exportResultsJsonBtn" class="btn btn-info" type="button">
+                    <i class="fas fa-code"></i> JSON Export (.json)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Ayarlar</h1>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-download"></i> Veri İndirme</h5>
+              </div>
+              <div class="card-body">
+                <p>Toplanan e-posta verilerini farklı formatlarda indirebilirsiniz.</p>
+
+                <div class="d-grid gap-2">
+                  <button id="downloadAllEmailsTxt" class="btn btn-outline-primary" type="button">
+                    <i class="fas fa-file-alt"></i> Tüm E-postaları İndir (.txt)
+                  </button>
+                  <button id="downloadShopEmailsTxt" class="btn btn-outline-success" type="button">
+                    <i class="fas fa-store"></i> Shop E-postaları İndir (.txt)
+                  </button>
+                  <button id="downloadNormalEmailsTxt" class="btn btn-outline-info" type="button">
+                    <i class="fas fa-user"></i> Normal E-postaları İndir (.txt)
+                  </button>
+                  <button id="downloadAllEmailsCsv" class="btn btn-outline-warning" type="button">
+                    <i class="fas fa-file-csv"></i> Tüm E-postaları İndir (.csv)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Sistem Bilgileri</h5>
+              </div>
+              <div class="card-body">
+                <div class="system-info">
+                  <div class="info-item">
+                    <span class="info-label">Aktif Kullanıcı:</span>
+                    <span class="info-value">{{ username }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Rol:</span>
+                    <span class="badge bg-primary">{{ role }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">IP Adresi:</span>
+                    <span class="info-value" id="userIP">-</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Oturum Süresi:</span>
+                    <span class="info-value" id="sessionTime">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <div class="card-header">
+                <h5><i class="fas fa-palette"></i> Görünüm</h5>
+              </div>
+              <div class="card-body">
+                <div class="form-check form-switch mb-3">
+                  <input class="form-check-input" type="checkbox" id="themeToggle">
+                  <label class="form-check-label" for="themeToggle">Açık / Koyu Tema</label>
+                </div>
+
+                <div class="mb-3">
+                  <label for="accentColorSelect" class="form-label">Vurgu Rengi</label>
+                  <select id="accentColorSelect" class="form-select">
+                    <option value="pink">TikTok Pembe</option>
+                    <option value="blue">Mavi</option>
+                    <option value="green">Yeşil</option>
+                    <option value="purple">Mor</option>
+                    <option value="orange">Turuncu</option>
+                  </select>
+                </div>
+
+                <button id="saveAppearanceBtn" class="btn btn-primary" type="button">
+                  <i class="fas fa-save"></i> Görünümü Kaydet
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% if role == 'admin' %}
+    <!-- ADMIN OVERVIEW -->
+    <section id="admin-overview-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Admin Özet</h1>
+
+        <div class="row">
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewTotalUsers">0</h3>
+                <p>Toplam Kullanıcı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-success">
+                <i class="fas fa-user-check"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewActiveUsers">0</h3>
+                <p>Aktif Kullanıcı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-info">
+                <i class="fas fa-envelope-open-text"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewEmails">0</h3>
+                <p>Bulunan Mail</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-warning">
+                <i class="fas fa-file-export"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewExports">0</h3>
+                <p>Export Sayısı</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-danger">
+                <i class="fas fa-layer-group"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewResults">0</h3>
+                <p>Toplam Sonuç</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-secondary">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="adminOverviewBlockedIps">0</h3>
+                <p>Engelli IP</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-chart-line"></i> Kullanıcı Performans Özeti</h5>
+            <button id="refreshAdminOverviewBtn" class="btn btn-outline-primary btn-sm" type="button">
+              <i class="fas fa-sync"></i> Yenile
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-dark table-striped">
+                <thead>
+                  <tr>
+                    <th>Kullanıcı</th>
+                    <th>Paket</th>
+                    <th>Durum</th>
+                    <th>Günlük Limit</th>
+                    <th>Çıkan Mail</th>
+                    <th>Aktif Süre</th>
+                    <th>Export</th>
+                    <th>Son Cihaz</th>
+                  </tr>
+                </thead>
+                <tbody id="adminOverviewTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center text-muted">Veri bulunamadı</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- USERS -->
+    <section id="users-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Kullanıcı Yönetimi</h1>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-user-plus"></i> Yeni Kullanıcı Ekle</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="newUsername" class="form-label">Kullanıcı Adı</label>
+                  <input type="text" id="newUsername" class="form-control" placeholder="kullanici_adi">
+                </div>
+
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label">Şifre</label>
+                  <input type="password" id="newPassword" class="form-control" placeholder="güçlü_şifre">
+                </div>
+
+                <div class="mb-3">
+                  <label for="newUserRole" class="form-label">Rol</label>
+                  <select id="newUserRole" class="form-select">
+                    <option value="user">Kullanıcı</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+
+                <button id="addUserBtn" class="btn btn-success w-100" type="button">
+                  <i class="fas fa-plus"></i> Kullanıcı Ekle
+                </button>
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <div class="card-header">
+                <h5><i class="fas fa-sliders-h"></i> Kullanıcı İşlemleri</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="adminActionUsername" class="form-label">Kullanıcı</label>
+                  <input type="text" id="adminActionUsername" class="form-control" placeholder="kullanici_adi">
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button id="freezeUserBtn" class="btn btn-outline-warning" type="button">
+                    <i class="fas fa-snowflake"></i> Kullanıcı Dondur
+                  </button>
+                  <button id="unfreezeUserBtn" class="btn btn-outline-success" type="button">
+                    <i class="fas fa-play-circle"></i> Kullanıcı Aç
+                  </button>
+                  <button id="resetUserLimitsBtn" class="btn btn-outline-info" type="button">
+                    <i class="fas fa-rotate-left"></i> Limitleri Sıfırla
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-users"></i> Mevcut Kullanıcılar</h5>
+                <button id="refreshUsersBtn" class="btn btn-outline-primary btn-sm" type="button">
+                  <i class="fas fa-sync"></i> Yenile
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-dark table-striped">
+                    <thead>
+                      <tr>
+                        <th>Kullanıcı</th>
+                        <th>Rol</th>
+                        <th>Paket</th>
+                        <th>Durum</th>
+                        <th>Günlük Hak</th>
+                        <th>Son Giriş</th>
+                        <th>Cihaz</th>
+                        <th>E-posta</th>
+                        <th>İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                      <tr>
+                        <td colspan="9" class="text-center">Kullanıcılar yükleniyor...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN PACKAGES -->
+    <section id="admin-packages-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">Paket / Limit Yönetimi</h1>
+
+        <div class="row">
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-box-open"></i> Paket Ayarları</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="packageUsername" class="form-label">Kullanıcı Adı</label>
+                  <input type="text" id="packageUsername" class="form-control" placeholder="kullanici_adi">
+                </div>
+
+                <div class="mb-3">
+                  <label for="packageType" class="form-label">Paket Tipi</label>
+                  <select id="packageType" class="form-select">
+                    <option value="trial">Deneme</option>
+                    <option value="premium">Premium</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="dailyScrapeLimit" class="form-label">Günlük Scrape Hakkı</label>
+                  <input type="number" id="dailyScrapeLimit" class="form-control" placeholder="1000">
+                </div>
+
+                <div class="mb-3">
+                  <label for="dailyExportLimit" class="form-label">Günlük Export Hakkı</label>
+                  <input type="number" id="dailyExportLimit" class="form-control" placeholder="50">
+                </div>
+
+                <button id="savePackageBtn" class="btn btn-success w-100" type="button">
+                  <i class="fas fa-save"></i> Paket / Limit Kaydet
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-list-check"></i> Paket Özeti</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-dark table-striped">
+                    <thead>
+                      <tr>
+                        <th>Kullanıcı</th>
+                        <th>Paket</th>
+                        <th>Scrape Limit</th>
+                        <th>Export Limit</th>
+                        <th>Bugünkü Kullanım</th>
+                        <th>Durum</th>
+                      </tr>
+                    </thead>
+                    <tbody id="packageTableBody">
+                      <tr>
+                        <td colspan="6" class="text-center text-muted">Veri bulunamadı</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-3">
+                  <div id="packageSummaryCards" class="row g-3">
+                    <div class="col-md-4">
+                      <div class="info-item">
+                        <span class="info-label">Deneme</span>
+                        <span class="info-value" id="trialUsersCount">0</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="info-item">
+                        <span class="info-label">Premium</span>
+                        <span class="info-value" id="premiumUsersCount">0</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="info-item">
+                        <span class="info-label">Enterprise</span>
+                        <span class="info-value" id="enterpriseUsersCount">0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IP MANAGEMENT -->
+    <section id="ip-management-section" class="content-section">
+      <div class="container-fluid">
+        <h1 class="page-title">IP Yönetimi</h1>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-ban"></i> IP Engelle</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="blockIpInput" class="form-label">IP Adresi</label>
+                  <input type="text" id="blockIpInput" class="form-control" placeholder="192.168.1.1">
+                </div>
+
+                <button id="blockIpBtn" class="btn btn-danger" type="button">
+                  <i class="fas fa-ban"></i> IP Engelle
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-shield-alt"></i> Engellenen IP'ler</h5>
+              </div>
+              <div class="card-body">
+                <div id="blockedIpsList" class="blocked-ips-list">
+                  <div class="text-muted text-center">Engellenen IP bulunamadı...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+  <div id="loadingOverlay" class="loading-overlay d-none">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>İşlem yapılıyor...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.userRole = '{{ role }}';
+  </script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

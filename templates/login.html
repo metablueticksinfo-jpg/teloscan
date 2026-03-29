@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Scraper - Giriş</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="/static/css/login.css" rel="stylesheet">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-background-glow glow-1"></div>
+    <div class="login-background-glow glow-2"></div>
+
+    <div class="login-container">
+      <div class="login-layout">
+
+        <div class="login-showcase">
+          <div class="showcase-badge">
+            <i class="fas fa-bolt"></i>
+            <span>Canlı Kontrol Paneli</span>
+          </div>
+
+          <div class="showcase-brand">
+            <div class="brand-icon">
+              <i class="fab fa-tiktok"></i>
+            </div>
+            <div>
+              <h1>Teloscan Panel</h1>
+              <p>Modern giriş ekranı, canlı saat ve İstanbul hava durumu ile.</p>
+            </div>
+          </div>
+
+          <div class="showcase-info-grid">
+            <div class="info-card live-time-card">
+              <div class="info-card-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="info-card-content">
+                <span class="info-label">İstanbul Saati</span>
+                <strong id="istanbulClock">--:--:--</strong>
+                <small id="istanbulDate">Tarih yükleniyor...</small>
+              </div>
+            </div>
+
+            <div class="info-card weather-card">
+              <div class="info-card-icon">
+                <i id="weatherIcon" class="fas fa-cloud-sun"></i>
+              </div>
+              <div class="info-card-content">
+                <span class="info-label">İstanbul Hava Durumu</span>
+                <strong id="istanbulWeatherTemp">--°C</strong>
+                <small id="istanbulWeatherText">Hava durumu yükleniyor...</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="showcase-features">
+            <div class="feature-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Güvenli giriş ekranı</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Canlı panel yönetimi</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-palette"></i>
+              <span>Modern ve şık görünüm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-card-wrap">
+          <div class="login-card">
+            <div class="login-header">
+              <div class="login-logo">
+                <i class="fab fa-tiktok"></i>
+              </div>
+              <h2>Hoş Geldin</h2>
+              <p>Hesabınla giriş yaparak panele erişebilirsin.</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+              <div class="form-group">
+                <label for="username" class="form-label">Kullanıcı Adı</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                  </span>
+                  <input type="text" id="username" class="form-control" placeholder="Kullanıcı Adı" autocomplete="username" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="password" class="form-label">Şifre</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password" id="password" class="form-control" placeholder="Şifre" autocomplete="current-password" required>
+                  <button type="button" class="input-group-text password-toggle-btn" id="togglePasswordBtn" aria-label="Şifreyi göster/gizle">
+                    <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="login-actions">
+                <button type="submit" class="btn btn-primary login-btn">
+                  <span class="btn-text">Giriş Yap</span>
+                  <span class="btn-loading d-none">
+                    <i class="fas fa-spinner fa-spin"></i> Giriş yapılıyor...
+                  </span>
+                </button>
+              </div>
+            </form>
+
+            <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span id="errorMessage"></span>
+            </div>
+
+            <div class="login-footer">
+              <div class="footer-item">
+                <i class="fas fa-location-dot"></i>
+                <span>İstanbul / Türkiye</span>
+              </div>
+              <div class="footer-item">
+                <i class="fas fa-circle-check"></i>
+                <span>Sistem hazır</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/js/login.js"></script>
+</body>
+</html>
