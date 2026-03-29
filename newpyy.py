@@ -168,7 +168,7 @@ def default_user_meta(role="user"):
         "last_login_device": None,
         "is_frozen": False,
         "package_type": "premium" if role == "admin" else "trial",
-        "account_type": "premium" if role == "admin" else "trial",   # trial / premium
+        "account_type": "premium" if role == "admin" else "trial",
         "daily_scrape_limit": 999999 if role == "admin" else 50,
         "total_scrape_limit": 999999999 if role == "admin" else 500,
         "daily_scrape_used": 0,
@@ -245,21 +245,56 @@ def save_users(users):
         json.dump(users, f, ensure_ascii=False, indent=2)
 
 
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except:
+        return default
+
+
+def clean_optional_string(value):
+    if value is None:
+        return None
+    value = str(value).strip()
+    if not value:
+        return None
+    if value.lower() in {"none", "null", "undefined", "nan", "false"}:
+        return None
+    return value
+
+
+def clean_secuid(value):
+    value = clean_optional_string(value)
+    if not value:
+        return None
+    return value
+
+
+def clean_user_id(value):
+    value = clean_optional_string(value)
+    if not value:
+        return ""
+    return value
+
+
 def normalize_queue_item(item):
     if isinstance(item, dict):
         return {
-            "user_id": str(item.get("user_id", "")).strip(),
-            "sec_uid": str(item.get("sec_uid", "")).strip() or None
+            "user_id": clean_user_id(item.get("user_id")),
+            "sec_uid": clean_secuid(item.get("sec_uid"))
         }
     elif isinstance(item, str):
-        return {"user_id": item.strip(), "sec_uid": None}
+        return {
+            "user_id": clean_user_id(item),
+            "sec_uid": None
+        }
     return {"user_id": "", "sec_uid": None}
 
 
 def build_queue_item(user_id=None, sec_uid=None):
     return {
-        "user_id": str(user_id).strip() if user_id is not None else "",
-        "sec_uid": str(sec_uid).strip() if sec_uid else None
+        "user_id": clean_user_id(user_id),
+        "sec_uid": clean_secuid(sec_uid)
     }
 
 
@@ -294,8 +329,8 @@ def parse_region_filter(value):
 
 
 def make_result_key(result):
-    sec_uid = str(result.get("sec_uid") or "").strip()
-    user_id = str(result.get("user_id") or "").strip()
+    sec_uid = clean_secuid(result.get("sec_uid")) or ""
+    user_id = clean_user_id(result.get("user_id")) or ""
     username = str(result.get("username") or "").strip().lower()
     email = str(result.get("email") or "").strip().lower()
 
@@ -304,13 +339,6 @@ def make_result_key(result):
     if user_id:
         return f"uid:{user_id}"
     return f"user:{username}|mail:{email}"
-
-
-def safe_int(value, default=0):
-    try:
-        return int(value)
-    except:
-        return default
 
 
 def is_rate_limit_message(text):
@@ -446,7 +474,11 @@ def load_user_states():
                         data[username]['queued_users'] = set()
 
                     if 'processed_list' in data[username]:
-                        data[username]['processed'] = set(data[username]['processed_list'])
+                        cleaned_processed = {
+                            clean_secuid(x) for x in data[username]['processed_list']
+                            if clean_secuid(x)
+                        }
+                        data[username]['processed'] = cleaned_processed
                         del data[username]['processed_list']
                     else:
                         data[username]['processed'] = set()
@@ -534,7 +566,9 @@ def save_user_states():
             del serializable_state['queue']
 
             serializable_state['queued_users_list'] = list(state['queued_users'])
-            serializable_state['processed_list'] = list(state['processed'])
+            serializable_state['processed_list'] = [
+                x for x in state['processed'] if clean_secuid(x)
+            ]
             serializable_state['unique_emails_list'] = list(state['unique_emails'])
             serializable_state['result_keys_list'] = list(state['result_keys'])
 
@@ -657,7 +691,9 @@ def load_processed_users():
     try:
         with open(PROCESSED_USERS_FILE, "r", encoding='utf-8') as f:
             lines = f.read().strip().splitlines()
-            global_processed_users = set(line.strip() for line in lines if line.strip())
+            global_processed_users = {
+                clean_secuid(line) for line in lines if clean_secuid(line)
+            }
         print(f"Processed users yüklendi: {len(global_processed_users)} kullanıcı")
     except Exception as e:
         print(f"Processed users yüklenirken hata: {e}")
@@ -684,16 +720,31 @@ def save_processed_users_batch(secuids):
     if not secuids:
         return
 
+    cleaned_secuids = []
+    seen_batch = set()
+
+    for secuid in secuids:
+        cleaned = clean_secuid(secuid)
+        if cleaned and cleaned not in seen_batch:
+            cleaned_secuids.append(cleaned)
+            seen_batch.add(cleaned)
+
+    if not cleaned_secuids:
+        return
+
     with file_write_lock:
         try:
             existing_users = set()
             if os.path.exists(PROCESSED_USERS_FILE):
                 with open(PROCESSED_USERS_FILE, "r", encoding='utf-8') as f:
-                    existing_users = set(line.strip() for line in f.read().strip().splitlines() if line.strip())
+                    existing_users = {
+                        clean_secuid(line) for line in f.read().strip().splitlines()
+                        if clean_secuid(line)
+                    }
 
             new_users = []
-            for secuid in secuids:
-                if secuid and secuid not in existing_users and secuid not in global_processed_users:
+            for secuid in cleaned_secuids:
+                if secuid not in existing_users and secuid not in global_processed_users:
                     new_users.append(secuid)
                     global_processed_users.add(secuid)
 
@@ -801,7 +852,7 @@ def extract_user_id_and_secuid_from_profile_html(html):
             sec_uid = match.group(1)
             break
 
-    return user_id, sec_uid
+    return clean_user_id(user_id), clean_secuid(sec_uid)
 
 
 def get_following_api_url(user_id, count=200, time_cursor=0):
@@ -864,8 +915,8 @@ def parse_user_entry(user):
         or user_data.get("desc")
         or ""
     )
-    secuid = user_data.get("sec_uid") or user_data.get("secUid") or ""
-    user_id = user_data.get("id") or user_data.get("uid") or user_data.get("user_id") or ""
+    secuid = clean_secuid(user_data.get("sec_uid") or user_data.get("secUid"))
+    user_id = clean_user_id(user_data.get("id") or user_data.get("uid") or user_data.get("user_id"))
     region = (user_data.get("region") or "").strip().upper()
     following_count = (
         user_data.get("following_count")
@@ -888,8 +939,8 @@ def parse_user_entry(user):
         "followers": followers,
         "following_count": following_count,
         "signature": str(signature).strip(),
-        "secuid": str(secuid).strip(),
-        "user_id": str(user_id).strip(),
+        "secuid": secuid,
+        "user_id": user_id,
         "ttseller": ttseller,
         "region": region
     }
@@ -917,8 +968,8 @@ def process_single_user(queue_item, username, filters):
     state = user_states[username]
     item = normalize_queue_item(queue_item)
 
-    current_user_id = item.get("user_id")
-    current_sec_uid = item.get("sec_uid")
+    current_user_id = clean_user_id(item.get("user_id"))
+    current_sec_uid = clean_secuid(item.get("sec_uid"))
 
     if not current_user_id:
         return "general_error", [{
@@ -978,8 +1029,8 @@ def process_single_user(queue_item, username, filters):
             verified = parsed["verified"]
             followers = parsed["followers"]
             signature = parsed["signature"]
-            secuid = parsed["secuid"]
-            next_user_id = parsed["user_id"]
+            secuid = clean_secuid(parsed["secuid"])
+            next_user_id = clean_user_id(parsed["user_id"])
             ttseller = parsed["ttseller"]
             region = parsed["region"]
             followers_str = format_followers(followers)
@@ -1044,13 +1095,12 @@ def process_single_user(queue_item, username, filters):
             logs.append(log_entry)
             add_result_to_state(username, state, result_entry)
 
-            if next_user_id:
+            if next_user_id and secuid:
                 queue_candidate = build_queue_item(user_id=next_user_id, sec_uid=secuid)
                 queue_key = get_queue_key(queue_candidate)
 
                 if (
                     queue_key
-                    and secuid
                     and secuid not in state["processed"]
                     and secuid not in global_processed_users
                     and queue_key not in state["queued_users"]
@@ -1078,7 +1128,7 @@ def build_region_analysis(results):
 
     for item in results:
         region = item.get("region") or "UNKNOWN"
-        user_key = item.get("sec_uid") or item.get("user_id") or item.get("username") or str(uuid.uuid4())
+        user_key = clean_secuid(item.get("sec_uid")) or clean_user_id(item.get("user_id")) or item.get("username") or str(uuid.uuid4())
         email = item.get("email")
 
         if user_key not in seen_users_per_region[region]:
@@ -1120,7 +1170,7 @@ def build_chart_data(results):
     seen_users = set()
 
     for item in results:
-        user_key = item.get("sec_uid") or item.get("user_id") or item.get("username")
+        user_key = clean_secuid(item.get("sec_uid")) or clean_user_id(item.get("user_id")) or item.get("username")
         if user_key and user_key in seen_users:
             continue
         if user_key:
@@ -1313,7 +1363,7 @@ def start_scraper():
         return jsonify({"error": reason}), 403
 
     data = request.get_json()
-    user_id = str(data.get("userId") or data.get("user_id") or "").strip()
+    user_id = clean_user_id(data.get("userId") or data.get("user_id") or "")
 
     if not user_id:
         return jsonify({"error": "userId gerekli"}), 400
@@ -1369,7 +1419,6 @@ def scrape(username, start_user_id):
     empty_cycles = 0
     max_empty_cycles = 5
 
-    # Free Api Limit: 1 request/second
     state["executor"] = ThreadPoolExecutor(max_workers=2)
 
     with lock:
@@ -1385,7 +1434,7 @@ def scrape(username, start_user_id):
                     if current_key:
                         state["queued_users"].discard(current_key)
 
-                    current_sec_uid = current.get("sec_uid")
+                    current_sec_uid = clean_secuid(current.get("sec_uid"))
 
                     if current_sec_uid and (current_sec_uid in state["processed"] or current_sec_uid in global_processed_users):
                         state["skipped_count"] += 1
@@ -1441,7 +1490,7 @@ def scrape(username, start_user_id):
 
                 if result_type == "already_processed":
                     if len(result) >= 3:
-                        current_sec_uid = result[2]
+                        current_sec_uid = clean_secuid(result[2])
                     if current_sec_uid:
                         state["processed"].add(current_sec_uid)
                         batch_to_save.append(current_sec_uid)
@@ -1472,13 +1521,14 @@ def scrape(username, start_user_id):
                             state["logs"].append(error_log)
 
                     if len(result) >= 3:
-                        current_sec_uid = result[2]
+                        current_sec_uid = clean_secuid(result[2])
                     if current_sec_uid:
                         state["processed"].add(current_sec_uid)
                         batch_to_save.append(current_sec_uid)
 
                 elif result_type == "success" and len(result) >= 4:
                     _, logs, new_users, current_sec_uid = result
+                    current_sec_uid = clean_secuid(current_sec_uid)
 
                     for log_entry in logs:
                         state["logs"].append(log_entry)
@@ -1494,7 +1544,7 @@ def scrape(username, start_user_id):
                                 "ttseller": log_entry.get("ttseller"),
                                 "timestamp": log_entry.get("timestamp"),
                                 "user_id": log_entry.get("user_id"),
-                                "sec_uid": log_entry.get("sec_uid"),
+                                "sec_uid": clean_secuid(log_entry.get("sec_uid")),
                                 "region": log_entry.get("region")
                             })
 
@@ -1502,12 +1552,14 @@ def scrape(username, start_user_id):
                     for new_user in new_users:
                         new_user = normalize_queue_item(new_user)
                         new_key = get_queue_key(new_user)
-                        new_sec_uid = new_user.get("sec_uid")
+                        new_sec_uid = clean_secuid(new_user.get("sec_uid"))
 
                         if (
                             new_key
+                            and new_sec_uid
                             and new_key not in state["queued_users"]
-                            and (not new_sec_uid or (new_sec_uid not in state["processed"] and new_sec_uid not in global_processed_users))
+                            and new_sec_uid not in state["processed"]
+                            and new_sec_uid not in global_processed_users
                         ):
                             state["queue"].put(new_user)
                             state["queued_users"].add(new_key)
@@ -1771,7 +1823,7 @@ def export_results():
             "Verified": "Yes" if item.get("verified") else "No",
             "Shop": "Yes" if item.get("is_shop") else "No",
             "UserID": item.get("user_id", ""),
-            "SecUID": item.get("sec_uid", ""),
+            "SecUID": clean_secuid(item.get("sec_uid")) or "",
             "Bio": item.get("signature", ""),
             "Timestamp": item.get("timestamp", "")
         })
@@ -2207,7 +2259,7 @@ def get_user_emails():
                         "ttseller": log.get("ttseller"),
                         "timestamp": log.get("timestamp"),
                         "user_id": log.get("user_id"),
-                        "sec_uid": log.get("sec_uid"),
+                        "sec_uid": clean_secuid(log.get("sec_uid")),
                         "region": log.get("region")
                     })
         return jsonify({"emails": emails})
@@ -2423,7 +2475,10 @@ def get_system_stats():
 
     try:
         with open(PROCESSED_USERS_FILE, "r", encoding='utf-8') as f:
-            file_processed = len([line for line in f.read().strip().splitlines() if line.strip()])
+            file_processed = len([
+                clean_secuid(line) for line in f.read().strip().splitlines()
+                if clean_secuid(line)
+            ])
     except:
         file_processed = 0
 
